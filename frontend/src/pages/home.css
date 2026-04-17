@@ -1,0 +1,200 @@
+.home-wrapper {
+  background-color: #ffffff;
+  padding: 0 5% 5rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ================= HERO SECTION ================= */
+.hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* FIXED */
+  min-height: 85vh;
+  gap: 4rem;
+}
+
+.hero-content {
+  flex: 1.2;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.hero-visual {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* FIXED */
+}
+
+/* Canvas */
+.canvas-wrapper {
+  width: 100%;
+  max-width: 450px;
+  height: 450px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.04) 0%, transparent 70%);
+}
+
+.canvas-wrapper:active {
+  cursor: grabbing;
+}
+
+/* ================= TYPOGRAPHY ================= */
+.pill {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  width: fit-content;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.title span {
+  color: #2563eb;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #64748b;
+  max-width: 500px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+/* ================= BUTTON ================= */
+.cta-button {
+  background: #2563eb;
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
+}
+
+/* ================= BENTO GRID ================= */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 300px);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  perspective: 1500px;
+}
+
+.bento-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 35px;
+  padding: 2.5rem;
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.bento-item:hover {
+  transform: translateY(-10px) rotateX(4deg) rotateY(-2deg);
+  border-color: #2563eb;
+  box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.1);
+}
+
+.tall {
+  grid-row: span 2;
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+.gradient {
+  background: linear-gradient(145deg, #ffffff, #eff6ff);
+}
+
+.icon {
+  color: #2563eb;
+  margin-bottom: 1.5rem;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-visual {
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .canvas-wrapper {
+    height: 320px;
+  }
+
+  .bento-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .tall,
+  .wide {
+    grid-row: auto;
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.8rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  .canvas-wrapper {
+    height: 260px;
+  }
+}
