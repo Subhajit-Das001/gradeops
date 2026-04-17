@@ -1,9 +1,12 @@
 import React from 'react';
 import { ArrowRight, Brain, Zap, Shield, Cpu } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import HeroScene from './HeroScene';
 import './Home.css';
 
-const Home = ({ setView }) => {
+const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="home-wrapper">
       {/* Hero: Text Left, Small 3D Right */}
@@ -15,7 +18,7 @@ const Home = ({ setView }) => {
             A specialized grading pipeline using Vision-Language Models to evaluate 
             handwritten exams with explainable AI justifications[cite: 32, 119].
           </p>
-          <button className="cta-button" onClick={() => setView('upload')}>
+          <button className="cta-button" onClick={() => navigate('/signup')}>
             Get Started <ArrowRight size={18} />
           </button>
         </div>

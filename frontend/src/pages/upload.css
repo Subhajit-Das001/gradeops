@@ -1,0 +1,355 @@
+:root {
+  --primary-blue: #2563eb; /* Modern Royal Blue */
+  --accent-blue: #1d4ed8;
+  --bg-light-blue: #f0f7ff; /* Soft accent background */
+  --bg-gray: #f8fafc; /* Page Background */
+  --text-dark: #1e293b;
+  --text-gray: #64748b;
+  --white: #ffffff;
+  --border-color: #e2e8f0;
+}
+
+/* Global Centering from previous steps */
+.main-content-container {
+  min-height: 85vh; /* Enough space to push footer down */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: var(--bg-gray);
+}
+
+/* Main Card */
+.upload-page {
+  background: var(--white);
+  width: 100%;
+  max-width: 950px; /* Constraints for a balanced layout */
+  min-height: 600px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* 1. Header */
+.upload-header {
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 20px;
+}
+
+.upload-header h1 {
+  font-size: 26px;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.upload-header p {
+  color: var(--text-gray);
+  font-size: 15px;
+  max-width: 700px;
+  line-height: 1.5;
+}
+
+/* 2. Body */
+.upload-body {
+  display: flex;
+  gap: 40px;
+  flex: 1;
+}
+
+.dropzone-section {
+  flex: 1.3;
+  display: flex;
+}
+
+.options-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* 3. The Dropzone Area */
+.dropzone {
+  width: 100%;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  background-color: var(--bg-light-blue);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: border-color 0.3s, background-color 0.3s;
+  padding: 30px;
+}
+
+.dropzone:hover {
+  border-color: var(--primary-blue);
+  background-color: #e0f2fe; /* Slightly richer blue on hover */
+}
+
+.dropzone.has-file {
+  border-color: var(--primary-blue);
+  border-style: solid;
+}
+
+.dropzone h2 {
+  font-size: 18px;
+  color: var(--primary-blue);
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+.dropzone p {
+  color: var(--text-gray);
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* File Selected Preview */
+.file-preview {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.remove-file-btn {
+  background: none;
+  border: 1px solid var(--primary-blue);
+  color: var(--primary-blue);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+/* 4. Options Area */
+.option-input {
+  margin-bottom: 18px;
+}
+
+.option-input label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.option-input input, .option-input select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  outline: none;
+}
+
+.option-row {
+  display: flex;
+  gap: 15px;
+}
+
+.option-row .split {
+  flex: 1;
+}
+
+/* Checkboxes */
+.extra-options {
+  margin-top: 20px;
+}
+
+.option-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.check-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-blue);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.check-box path {
+  opacity: 0;
+}
+
+.option-check:first-child .check-box path {
+  opacity: 1; /* Pre-select the first checkbox */
+}
+
+.option-check label {
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+/* 5. Footer Buttons */
+.upload-footer {
+  margin-top: 40px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: var(--text-gray);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primary-btn:hover {
+  background-color: var(--accent-blue);
+}
+/* Rubric Specific Styles */
+.rubric-toggle-container {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f1f5f9; /* Soft slate background to distinguish section */
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary-blue);
+}
+
+.text-action-btn {
+  background: none;
+  border: none;
+  color: var(--primary-blue);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rubric-builder {
+  margin-top: 15px;
+  animation: fadeIn 0.3s ease;
+}
+
+.helper-text {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 10px;
+}
+
+.rubric-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.rubric-input-main {
+  flex: 3;
+  padding: 8px !important;
+  font-size: 13px !important;
+}
+
+.rubric-input-pts {
+  flex: 1;
+  padding: 8px !important;
+  font-size: 13px !important;
+  text-align: center;
+}
+
+.add-more-btn {
+  background: none;
+  border: 1px dashed var(--primary-blue);
+  color: var(--primary-blue);
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.add-more-btn:hover {
+  background-color: #e0f2fe;
+}
+.rubric-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.remove-single-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.remove-single-btn:hover {
+  color: #ef4444; /* Red on hover */
+}
+
+.rubric-input-main {
+  flex: 3;
+}
+
+.rubric-input-pts {
+  flex: 1;
+  max-width: 60px;
+  text-align: center;
+}
+
+/* Helper to ensure the layout doesn't jump */
+.rubric-builder {
+  margin-top: 15px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 15px;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 6. Responsiveness */
+@media (max-width: 900px) {
+  .upload-page {
+    padding: 25px;
+    margin: 10px;
+  }
+  .upload-body {
+    flex-direction: column;
+  }
+}

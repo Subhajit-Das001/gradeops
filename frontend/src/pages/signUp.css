@@ -1,0 +1,187 @@
+:root {
+  --main-blue: #1e3a8a; /* Deep Navy Blue */
+  --light-blue: #eef2f3;
+  --accent-blue: #2563eb;
+  --bg-gray: #f8fafc;
+  --text-main: #334155;
+  --text-light: #64748b;
+}
+
+/* 1. Centering Wrapper */
+.auth-wrapper {
+  min-height: 90vh; /* Leaves room for your header/footer */
+  background-color: var(--bg-gray);
+  display: flex;
+  align-items: center;  /* Vertical center */
+  justify-content: center; /* Horizontal center */
+  padding: 40px 20px; /* Space on sides for mobile */
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 1000px; /* Keeps the card from becoming too wide */
+  display: flex;
+  justify-content: center;
+}
+
+/* 2. The Main Card */
+.auth-card {
+  display: flex;
+  background: #ffffff;
+  width: 100%;
+  min-height: 600px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* 3. Left Side Styles */
+.auth-left {
+  flex: 1;
+  background-color: #f0f7ff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+
+
+.auth-left h2 {
+  color: var(--main-blue);
+  margin-bottom: 10px;
+}
+
+.auth-left p {
+  color: var(--text-light);
+  font-size: 14px;
+  max-width: 250px;
+}
+.icon-placeholder img {
+  width: 220px;
+  height: 220px;
+  border-radius: 5%;
+}
+/* 4. Right Side Styles */
+.auth-right {
+  flex: 1.2;
+  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-form-container {
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.auth-title {
+  text-align: center;
+  color: var(--main-blue);
+  letter-spacing: 1px;
+  margin-bottom: 25px;
+}
+
+/* 5. Inputs and Buttons */
+.auth-input-group {
+  margin-bottom: 18px;
+}
+
+.auth-input-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.auth-input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+}
+
+.auth-input-row {
+  display: flex;
+  gap: 15px;
+}
+
+.google-auth-btn {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.google-auth-btn img{
+    width: 18px;
+    height: 18px;
+}
+.auth-divider {
+  margin: 20px 0;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+  line-height: 0.1em;
+}
+
+.auth-divider span {
+  background: #fff;
+  padding: 0 10px;
+  color: var(--text-light);
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--main-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.auth-footer-text {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+.auth-footer-text a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* 6. Responsiveness */
+@media (max-width: 900px) {
+  .auth-card {
+    flex-direction: column;
+    max-width: 500px;
+  }
+ 
+}
+
+@media (max-width: 500px) {
+  .auth-input-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .auth-right {
+    padding: 30px 20px;
+  }
+}
