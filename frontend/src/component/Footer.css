@@ -1,0 +1,130 @@
+/* Main Footer Container */
+.footer-container {
+  background-color: #ffffff; /* Explicitly white per instruction */
+  color: #334155; /* Slate-700 for readability */
+  padding: 4rem 2rem 1.5rem 2rem;
+  border-top: 1px solid #e2e8f0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Content Layout - 3 Column Grid for Desktop */
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr; /* Give more space to the description */
+  gap: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Website Details & Description */
+.webdetails {
+  max-width: 400px;
+}
+
+.footer-logo {
+  height: 48px;
+  margin-bottom: 1.5rem;
+  transition: opacity 0.3s;
+}
+
+.webdetails p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #64748b; /* Slate-500 for secondary text */
+}
+
+/* Headers for Column Sections */
+.imp-links h2, 
+.contact-info h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a; /* Darker slate for headers */
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Shared List Styling */
+.footer-links, 
+.contact-info {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li, 
+.contact-info li {
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+/* Link Interactions - Matches Navbar logic */
+.footer-links a {
+  text-decoration: none; /* No underline per instruction */
+  color: #64748b;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+.footer-links a:hover {
+  color: #2563eb; /* GradeOps Blue */
+  transform: translateX(4px);
+}
+
+/* Contact Details Info */
+.contact-info li {
+  color: #64748b;
+  word-break: break-word;
+}
+
+/* Bottom Copyright Section */
+.footer-end {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 2rem;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.developer-info {
+  margin-top: 0.5rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* --- Media Queries for Responsive Design --- */
+
+/* Tablet Size (2 Columns) */
+@media (max-width: 1024px) {
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+  }
+  .webdetails {
+    grid-column: span 2;
+    max-width: 100%;
+    text-align: center;
+  }
+  .footer-logo {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Phone Size (Single Column) */
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 2rem;
+  }
+  
+  .webdetails {
+    grid-column: span 1;
+  }
+
+  .footer-links a:hover {
+    transform: none; /* Disable horizontal shift on mobile center */
+  }
+}
