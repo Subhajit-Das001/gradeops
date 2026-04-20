@@ -1,0 +1,40 @@
+
+
+# GradeOps - Full Dependency List
+# Install with: pip install -r requirements.txt
+ 
+# ── Web Framework ──────────────────────────────────────────────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9      # for Form(...) / File(...) uploads
+ 
+# ── Database ───────────────────────────────────────────────────────────────────
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9       # PostgreSQL driver
+python-dotenv>=1.0.0         # .env file support
+ 
+# ── Core ML ────────────────────────────────────────────────────────────────────
+torch>=2.2.0
+torchvision>=0.17.0
+transformers>=4.45.0
+accelerate>=0.30.0
+bitsandbytes>=0.43.0         # 4-bit quantisation for Qwen-VL on smaller GPUs
+peft>=0.10.0
+ 
+# ── OCR / Vision ───────────────────────────────────────────────────────────────
+Pillow>=10.0.0
+PyMuPDF>=1.24.0              # PDF → image rendering (fitz)
+ 
+# ── LangChain / LangGraph ─────────────────────────────────────────────────────
+langchain>=0.2.0
+langchain-huggingface>=0.1.0
+huggingface-hub>=0.23.0
+langchain-core>=0.2.0
+langgraph>=0.1.0
+ 
+# ── Plagiarism Detection ───────────────────────────────────────────────────────
+scikit-learn>=1.4.0
+numpy>=1.26.0
+ 
+# ── Misc ───────────────────────────────────────────────────────────────────────
+pydantic[email]>=2.0.0

@@ -1,0 +1,264 @@
+:root {
+  --sidebar-width: 320px;
+  --header-height: 70px;
+  --primary-blue: #2563eb;
+  --success-green: #10b981;
+  --danger-red: #ef4444;
+  --warning-amber: #f59e0b;
+  --bg-slate: #f8fafc;
+  --border-color: #e2e8f0;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.dashboard-root {
+  display: flex;
+  height: 100vh;
+  background-color: var(--bg-slate);
+  color: var(--text-main);
+  overflow: hidden;
+}
+
+/* ── Sidebar: Script List ── */
+.script-list-panel {
+  width: var(--sidebar-width);
+  background: white;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.list-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.list-header h3 { font-size: 18px; margin-bottom: 12px; }
+
+.status-filter {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-slate);
+}
+
+.script-list {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.script-item {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.script-item:hover { background: #f1f5f9; }
+.script-item.active { background: #eff6ff; border-left: 4px solid var(--primary-blue); }
+
+.script-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.script-roll { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.script-score { font-size: 13px; color: var(--text-muted); }
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge-pending { background: #e2e8f0; color: #475569; }
+.badge-graded { background: #dcfce7; color: #166534; }
+.badge-approved { background: #dbeafe; color: #1e40af; }
+.badge-flagged { background: #fee2e2; color: #991b1b; }
+
+/* ── Main Review Panel ── */
+.review-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #f1f5f9;
+}
+
+.dashboard-header {
+  height: var(--header-height);
+  background: white;
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.status-info { display: flex; align-items: center; gap: 15px; }
+
+.shortcut-legend kbd {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+/* ── Split View Logic ── */
+.split-view {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 1px; /* Divider line effect */
+  background: var(--border-color);
+}
+
+.view-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  padding: 20px;
+}
+
+.panel-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 15px;
+}
+
+.image-viewport {
+  flex: 1;
+  background: #334155;
+  border-radius: 8px;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.student-image {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* ── AI Evaluation Styles ── */
+.content-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.score-widget {
+  background: var(--bg-slate);
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.score-value { font-size: 32px; font-weight: 800; color: var(--primary-blue); }
+.score-max { font-size: 18px; color: var(--text-muted); }
+.score-pct { font-size: 24px; font-weight: 700; color: var(--text-muted); }
+
+.question-block {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: white;
+}
+
+.question-block summary {
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f8fafc;
+}
+
+.justification-box {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: #f1f5f9;
+  font-size: 14px;
+  resize: none;
+}
+
+/* ── TA Actions Footer ── */
+.dashboard-actions {
+  padding: 20px 0;
+  display: flex;
+  gap: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s;
+}
+
+.action-btn:active { transform: scale(0.98); }
+.approve-btn { background: var(--success-green); color: white; }
+.flag-btn { background: #fee2e2; color: var(--danger-red); }
+
+/* Decision Overlay Animation */
+.approval-overlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 50px;
+  font-weight: 800;
+  z-index: 100;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ── Media Queries ── */
+
+/* MacBook Air & Small Laptops */
+@media (max-width: 1200px) {
+  :root { --sidebar-width: 280px; }
+  .split-view { flex-direction: column; overflow-y: auto; }
+  .view-panel { flex: none; height: auto; }
+  .image-viewport { height: 400px; }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  .dashboard-root { flex-direction: column; }
+  .script-list-panel { width: 100%; height: 30vh; }
+  .review-panel { height: 70vh; }
+  .dashboard-header h2 { font-size: 16px; }
+  .score-value { font-size: 24px; }
+  .dashboard-actions { padding: 10px; }
+}
