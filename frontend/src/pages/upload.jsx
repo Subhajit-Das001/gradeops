@@ -104,27 +104,36 @@ function UploadPage() {
       showToast('error', 'Please enter a Student Roll Number and select a file.');
       return;
     }
- 
+
     setIsUploading(true);
     const formData = new FormData();
     formData.append('student_roll', studentRoll);
     formData.append('assignment_name', assignmentName);
     formData.append('file', selectedFile);
-    if (selectedRubricId) formData.append('rubric_id', selectedRubricId);
- 
+    
+    // FIX: If selectedRubricId is empty, send an empty string or null.
+    // FastAPI's Optional[int] = Form(None) handles empty strings better 
+    // if we ensure it's not an 'undefined' object.
+    formData.append('rubric_id', selectedRubricId || ""); 
+
     try {
       const response = await fetch(`${API}/api/upload-script`, {
         method: 'POST',
-        body: formData,
+        body: formData, // Browser automatically sets multipart/form-data headers
       });
+      
       const result = await response.json();
       if (response.ok) {
         showToast('success', `✓ ${result.filename} uploaded. ${result.message}`);
         clearSelection();
       } else {
-        showToast('error', `Upload failed: ${result.detail}`);
+        // This will now show the actual error message instead of [object Object]
+        const errorMsg = typeof result.detail === 'string' 
+                         ? result.detail 
+                         : JSON.stringify(result.detail);
+        showToast('error', `Upload failed: ${errorMsg}`);
       }
-    } catch {
+    } catch (err) {
       showToast('error', "Backend offline. Run 'python main.py' first.");
     } finally {
       setIsUploading(false);

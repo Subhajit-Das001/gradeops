@@ -24,7 +24,7 @@ from grading_agent import (
  
  
 # ── Rubric loader ─────────────────────────────────────────────────────────────
-def load_rubric(rubric_path: str) -> dict[str, QuestionRubric]:
+def load_rubric(rubric_path: str):
     """
     Load a JSON rubric file.
  
@@ -88,8 +88,8 @@ def run_pipeline(
     rubric_path: str,
     output_path: str,
     plagiarism_threshold: float = 0.85,
-    question_regions: list[dict] | None = None,
-) -> dict:
+    question_regions=None,
+):
     """
     Full GradeOps ML pipeline.
  

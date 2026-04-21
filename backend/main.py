@@ -31,7 +31,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from dotenv import load_dotenv
- 
+import random
 # Local imports
 import models
 from database import engine, get_db , SessionLocal
@@ -52,20 +52,7 @@ load_dotenv()
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="GradeOps API", version="1.0.0")
-@app.on_event("startup")
-async def auto_grade_pending():
-    """On startup, re-trigger grading for any scripts stuck at pending."""
-    db = SessionLocal()
-    try:
-        pending = db.query(models.StudentScript).filter(
-            models.StudentScript.status == "pending",
-            models.StudentScript.rubric_id != None,
-        ).all()
-        for script in pending:
-            print(f"[GradeOps] Auto-grading pending script {script.id} ({script.student_roll})")
-            run_grading_for_script(script.id)
-    finally:
-        db.close()  
+
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
  
@@ -144,81 +131,103 @@ def build_rubric_map(rubric: models.Rubric):
  
  
 # ── Background grading task ───────────────────────────────────────────────────
-def run_grading_for_script(script_id: int):
+from grading_agent import (
+    grade_single_answer, 
+    QuestionRubric, 
+    RubricCriterion as AgentCriterion
+)
+from ocr_pipeline import extract_answers_from_pdf
+
+def run_grading_for_script(script_id: int, db: Session = None):
     """
-    Background task:
-      1. Read the uploaded file (skip heavy OCR for now, use filename as placeholder)
-      2. Grade using simple keyword matching (no LLM needed)
-      3. Store results in DB
-      4. Run plagiarism detection
+    Production Background Task:
+      1. OCR extraction using Qwen-VL/Nougat.
+      2. AI Grading using LangGraph Agent.
+      3. Commit real scores and justifications to DB.
     """
-    db = next(get_db())
+    internal_session = False
+    if db is None:
+        db = SessionLocal()
+        internal_session = True
+
     try:
-        script = db.query(models.StudentScript).filter(
-            models.StudentScript.id == script_id
-        ).first()
+        script = db.query(models.StudentScript).filter(models.StudentScript.id == script_id).first()
         if not script or not script.rubric_id:
-            print(f"[GradeOps] No rubric attached to script {script_id}, skipping.")
+            print(f"[GradeOps] Missing data for script {script_id}, skipping.")
             return
 
-        rubric = db.query(models.Rubric).filter(
-            models.Rubric.id == script.rubric_id
-        ).first()
-        if not rubric:
-            return
+        rubric = db.query(models.Rubric).filter(models.Rubric.id == script.rubric_id).first()
+        
+        # --- STEP 1: REAL OCR EXTRACTION ---
+        print(f"[GradeOps] Step 1: Running OCR on {script.filename}...")
+        ocr_results = extract_answers_from_pdf(script.file_path)
+        
+        # Map OCR results by question_id (e.g., {"Q1": "The answer text..."})
+        transcribed_map = {res["question_id"]: res["raw_text"] for res in ocr_results}
 
-        print(f"[GradeOps] Starting grading for script {script_id}...")
-
-        # Group criteria by question_id
+        # Group DB criteria by question_id
         from collections import defaultdict
         by_question = defaultdict(list)
         for c in rubric.criteria:
             by_question[c.question_id].append(c)
 
-        # For each question, create a grading result
+        # --- STEP 2: AI GRADING PIPELINE ---
         for qid, criteria in by_question.items():
-            total_possible = sum(c.max_marks for c in criteria)
+            # Get the actual text the student wrote for this question
+            student_answer_text = transcribed_map.get(qid, "No transcribed text found for this question.")
+            
+            # Convert DB model criteria to Agent-compatible objects
+            agent_criteria = [
+                AgentCriterion(
+                    criterion_id=c.criterion_id,
+                    description=c.description,
+                    max_marks=c.max_marks,
+                    keywords=c.keywords or []
+                ) for c in criteria
+            ]
 
-            # Simple mock: award 60-80% marks as placeholder until OCR runs
-            import random
-            awarded_pct = random.uniform(0.6, 0.85)
-            total_awarded = round(total_possible * awarded_pct, 1)
+            question_rubric = QuestionRubric(
+                question_id=qid,
+                question_text=criteria[0].question_text, # Use text from first criterion
+                total_marks=sum(c.max_marks for c in criteria),
+                criteria=agent_criteria
+            )
 
+            print(f"[GradeOps] Step 2: AI Grading Question {qid}...")
+            # Trigger your LangGraph Agent!
+            ai_result = grade_single_answer(question_rubric, student_answer_text)
+
+            # --- STEP 3: STORE REAL RESULTS ---
             gr = models.GradingResult(
                 script_id=script.id,
                 question_id=qid,
-                total_awarded=total_awarded,
-                max_marks=total_possible,
-                overall_justification=(
-                    f"AI grading placeholder for {qid}. "
-                    f"Student answered {awarded_pct:.0%} of expected content. "
-                    "Full OCR grading runs when HuggingFace models are loaded."
-                ),
-                plagiarism_flag=False,
+                total_awarded=ai_result.total_awarded,
+                max_marks=question_rubric.total_marks,
+                overall_justification=ai_result.overall_justification,
+                plagiarism_flag=False, # Plagiarism run separately
             )
             db.add(gr)
             db.flush()
 
-            # Add per-criterion scores
-            for c in criteria:
-                c_awarded = round(c.max_marks * awarded_pct, 1)
+            for cs in ai_result.criteria_scores:
                 db.add(models.CriterionScore(
                     grading_result_id=gr.id,
-                    criterion_id=c.criterion_id,
-                    awarded=c_awarded,
-                    justification=f"Partial credit awarded based on answer analysis.",
-                    met=awarded_pct >= 0.75,
+                    criterion_id=cs.criterion_id,
+                    awarded=cs.awarded,
+                    justification=cs.justification,
+                    met=cs.met,
                 ))
 
         script.status = "graded"
         db.commit()
-        print(f"[GradeOps] Grading complete for script {script_id} ✓")
+        print(f"[GradeOps] SUCCESS: {script.student_roll} graded by AI Agent ✓")
 
     except Exception as e:
-        print(f"[GradeOps] Grading failed for script {script_id}: {e}")
+        print(f"[GradeOps] ERROR: Grading failed: {e}")
         db.rollback()
     finally:
-        db.close()
+        if internal_session:
+            db.close()
  
  
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -307,37 +316,60 @@ def list_rubrics(db: Session = Depends(get_db)):
 @app.post("/api/upload-script", status_code=201)
 async def upload_script(
     background_tasks: BackgroundTasks,
-    student_roll: str   = Form(...),
+    student_roll: str = Form(...),
     assignment_name: str = Form(""),
-    rubric_id: Optional[int] = Form(None),
-    file: UploadFile     = File(...),
-    db: Session          = Depends(get_db),
+    rubric_id: Optional[str] = Form(None), # Receive as string to handle empty inputs
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
 ):
+   # 1. Initialize the ID as None
+ final_rubric_id = None
+
+# 2. Check if the string exists and isn't just whitespace
+ @app.post("/api/upload-script", status_code=201)
+ async def upload_script(
+    background_tasks: BackgroundTasks,
+    student_roll: str = Form(...),
+    assignment_name: str = Form(""),
+    rubric_id: Optional[str] = Form(None),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    # 1. Clean the rubric_id
+    final_rubric_id = None
+    if rubric_id and rubric_id.strip():
+        try:
+            final_rubric_id = int(rubric_id)
+        except ValueError:
+            raise HTTPException(status_code=422, detail="rubric_id must be a number")
+
+    # 2. Save the file (Moved OUTSIDE the rubric check)
     safe_filename = f"{student_roll}_{file.filename}"
     file_path = UPLOAD_DIR / safe_filename
- 
     with file_path.open("wb") as buf:
         shutil.copyfileobj(file.file, buf)
- 
+
+    # 3. Create the Database Record
     script = models.StudentScript(
         filename=safe_filename,
         file_path=str(file_path),
         student_roll=student_roll,
         assignment_name=assignment_name,
-        rubric_id=rubric_id,
+        rubric_id=final_rubric_id, # Use the cleaned integer!
         status="pending",
     )
     db.add(script)
     db.commit()
     db.refresh(script)
- 
-    # If a rubric is attached, kick off grading in the background
-    if rubric_id:
+
+    # 4. Trigger Background Task
+    if final_rubric_id:
+        # This is where the magic happens
         background_tasks.add_task(run_grading_for_script, script.id)
-        status_msg = "Grading started in background"
+        status_msg = f"Grading started for {student_roll}"
     else:
-        status_msg = "Uploaded — attach a rubric then call /api/grade/{id}"
- 
+        status_msg = "Uploaded (Pending Rubric Assignment)"
+    
     return {
         "status": "success",
         "db_id": script.id,
@@ -345,7 +377,6 @@ async def upload_script(
         "message": status_msg,
         "file_url": f"/uploads/{safe_filename}",
     }
- 
  
 # ── Manual grade trigger ──────────────────────────────────────────────────────
 @app.post("/api/grade/{script_id}")
@@ -592,7 +623,23 @@ def plagiarism_flags(db: Session = Depends(get_db)):
                 "plagiarism_note": gr.plagiarism_note,
             })
     return results
- 
+@app.on_event("startup")
+async def auto_grade_pending():
+    """On startup, re-trigger grading for any scripts stuck at pending."""
+    db = SessionLocal()
+    try:
+        pending = db.query(models.StudentScript).filter(
+            models.StudentScript.status == "pending",
+            models.StudentScript.rubric_id != None,
+        ).all()
+        for script in pending:
+            print(f"[GradeOps] Auto-grading pending script {script.id} ({script.student_roll})")
+            run_grading_for_script(script.id)
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
  
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)    
