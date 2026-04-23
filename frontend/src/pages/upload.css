@@ -110,6 +110,13 @@
 
 .remove-file-btn { border: 1px solid #ef4444; color: #ef4444; border-radius: 4px; padding: 4px 10px; cursor: pointer; background: white; }
 
+.no-rubric-warning {
+  color: #f59e0b;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
 /* --- Enhanced Responsiveness --- */
 
 /* 1. Large Tablets & Small Laptops (e.g., MacBook Air / iPad Pro) */

@@ -1,0 +1,66 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+backend/venv/
+__pycache__/
+*.pyc
+.env
+backend/uploads/
+node_modules/
+dist/
+
+EOF
+# Python virtual environment
+backend/venv/
+backend/.venv/
+env/
+__pycache__/
+*.pyc
+
+# Uploaded student scripts (GradeOps data)
+backend/uploads/
+backend/temp_uploads/
+
+# Environment variables (Crucial for security!)
+backend/.env
+
+# Mac system files
+.DS_Store
+
+# Large Model weights (if you downloaded any locally)
+
+*.safetensors
+*.bin
+
+# Large Language Model weights and files
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.gguf
+model.index.json
+backend/hub/
+frontend/node_modules/

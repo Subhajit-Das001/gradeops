@@ -24,7 +24,51 @@ function UploadPage() {
   const [rubricItems, setRubricItems]       = useState([{ criteria: '', points: '' }]);
   const [isUploading, setIsUploading]       = useState(false);
   const [toast, setToast]                   = useState(null);       // {type, message}
- 
+ const handleProcessSubmission = async () => {
+    if (!selectedFile || !studentRoll) {
+        showToast('error', 'Please enter a Student Roll Number and select a file.');
+        return;
+    }
+
+    let finalRubricId = selectedRubricId;
+
+    // If builder is open, we MUST save it first
+    if (showRubric) {
+        const savedId = await handleSaveRubric();
+        if (!savedId) return; // Stop if rubric save failed
+        finalRubricId = savedId;
+    }
+
+    if (!finalRubricId) {
+        const goAhead = window.confirm('No rubric selected. The AI cannot grade this automatically. Continue?');
+        if (!goAhead) return;
+    }
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('student_roll', studentRoll);
+    formData.append('assignment_name', assignmentName);
+    formData.append('file', selectedFile);
+    formData.append('rubric_id', finalRubricId || '');
+
+    try {
+        const response = await fetch(`${API}/api/upload-script`, {
+            method: 'POST',
+            body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+            showToast('success', `✓ Uploaded: ${studentRoll}. AI is grading now.`);
+            clearSelection();
+        } else {
+            showToast('error', `Upload failed: ${result.detail}`);
+        }
+    } catch (err) {
+        showToast('error', "Server unreachable. Ensure FastAPI is running.");
+    } finally {
+        setIsUploading(false);
+    }
+  };
   // Fetch existing rubrics on mount
   useEffect(() => {
     fetch(`${API}/api/rubrics`)
@@ -56,89 +100,47 @@ function UploadPage() {
   };
  
   // Save a new rubric to backend then select it
-  const handleSaveRubric = async () => {
-    if (!assignmentName) {
-      showToast('error', 'Set an Assignment Name before saving a rubric.');
-      return;
-    }
-    const validItems = rubricItems.filter(i => i.criteria && i.points);
-    if (validItems.length === 0) {
-      showToast('error', 'Add at least one rubric criterion.');
-      return;
-    }
- 
-    const totalMarks = validItems.reduce((s, i) => s + Number(i.points), 0);
-    const criteria = validItems.map((item, idx) => ({
-      criterion_id: `C${idx + 1}`,
-      question_id: 'Q1',
-      question_text: assignmentName,
-      description: item.criteria,
-      max_marks: Number(item.points),
-      keywords: [],
-    }));
- 
-    try {
-      const res = await fetch(`${API}/api/rubrics`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: assignmentName,
-          total_marks: totalMarks,
-          criteria,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail);
-      showToast('success', `Rubric saved (ID: ${data.rubric_id})`);
-      setSelectedRubricId(String(data.rubric_id));
-      // Refresh rubric list
-      fetch(`${API}/api/rubrics`).then(r => r.json()).then(setRubrics);
-      setShowRubric(false);
-    } catch (err) {
-      showToast('error', `Failed to save rubric: ${err.message}`);
-    }
-  };
- 
-  const handleProcessSubmission = async () => {
-    if (!selectedFile || !studentRoll) {
-      showToast('error', 'Please enter a Student Roll Number and select a file.');
-      return;
-    }
+const handleSaveRubric = async () => {
+  if (!assignmentName) {
+    showToast('error', 'Set an Assignment Name before saving a rubric.');
+    return null;
+  }
+  const validItems = rubricItems.filter(i => i.criteria && i.points);
+  if (validItems.length === 0) {
+    showToast('error', 'Add at least one rubric criterion.');
+    return null;
+  }
 
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('student_roll', studentRoll);
-    formData.append('assignment_name', assignmentName);
-    formData.append('file', selectedFile);
-    
-    // FIX: If selectedRubricId is empty, send an empty string or null.
-    // FastAPI's Optional[int] = Form(None) handles empty strings better 
-    // if we ensure it's not an 'undefined' object.
-    formData.append('rubric_id', selectedRubricId || ""); 
+  const totalMarks = validItems.reduce((s, i) => s + Number(i.points), 0);
+  const criteria = validItems.map((item, idx) => ({
+    criterion_id: `C${idx + 1}`,
+    question_id: 'Q1',
+    question_text: assignmentName,
+    description: item.criteria,
+    max_marks: Number(item.points),
+    keywords: [],
+  }));
 
-    try {
-      const response = await fetch(`${API}/api/upload-script`, {
-        method: 'POST',
-        body: formData, // Browser automatically sets multipart/form-data headers
-      });
-      
-      const result = await response.json();
-      if (response.ok) {
-        showToast('success', `✓ ${result.filename} uploaded. ${result.message}`);
-        clearSelection();
-      } else {
-        // This will now show the actual error message instead of [object Object]
-        const errorMsg = typeof result.detail === 'string' 
-                         ? result.detail 
-                         : JSON.stringify(result.detail);
-        showToast('error', `Upload failed: ${errorMsg}`);
-      }
-    } catch (err) {
-      showToast('error', "Backend offline. Run 'python main.py' first.");
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  try {
+    const res = await fetch(`${API}/api/rubrics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: assignmentName, total_marks: totalMarks, criteria }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail);
+    showToast('success', `Rubric saved (ID: ${data.rubric_id})`);
+    setSelectedRubricId(String(data.rubric_id));
+    setShowRubric(false);
+    fetch(`${API}/api/rubrics`).then(r => r.json()).then(setRubrics);
+    return String(data.rubric_id);   // ← return the ID
+  } catch (err) {
+    showToast('error', `Failed to save rubric: ${err.message}`);
+    return null;
+  }
+};
+ 
+  
  
   return (
     <div className="main-content-container">
@@ -293,11 +295,16 @@ function UploadPage() {
         </div>
  
         <div className="upload-footer">
-          <button className="clear-btn" onClick={clearSelection}>Clear All</button>
-          <button className="primary-btn" onClick={handleProcessSubmission} disabled={isUploading}>
-            {isUploading ? 'Uploading…' : 'Start Processing Submission'}
-          </button>
-        </div>
+  {!selectedRubricId && (
+    <p className="no-rubric-warning">
+      ⚠️ No rubric selected — script will stay pending until graded manually.
+    </p>
+  )}
+  <button className="clear-btn" onClick={clearSelection}>Clear All</button>
+  <button className="primary-btn" onClick={handleProcessSubmission} disabled={isUploading}>
+    {isUploading ? 'Uploading…' : 'Start Processing Submission'}
+  </button>
+</div>
       </div>
     </div>
   );
